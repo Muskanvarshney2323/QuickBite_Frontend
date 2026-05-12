@@ -1,3 +1,0 @@
-# QuickBite React Frontend
-
-

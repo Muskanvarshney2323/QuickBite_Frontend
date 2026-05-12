@@ -10,12 +10,17 @@ export default function CustomerDashboard() {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  console.log("[CUSTOMER_DASHBOARD] Page loaded for user:", user?.name, "with role:", user?.role);
+
   useEffect(() => {
     const fetchRestaurants = async () => {
       try {
+        console.log("[CUSTOMER_DASHBOARD] Loading restaurants...");
         setLoading(true);
         setRestaurants(await API.getRestaurants());
+        console.log("[CUSTOMER_DASHBOARD] Restaurants loaded successfully");
       } catch (error) {
+        console.error("[CUSTOMER_DASHBOARD] Error loading restaurants:", error);
         toast(error.message || "Failed to load restaurants", "error");
       } finally {
         setLoading(false);

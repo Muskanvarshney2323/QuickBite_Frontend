@@ -268,7 +268,7 @@ h4 {
 
 .nav-cta {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
 }
 
@@ -658,3 +658,24 @@ h4 {
     gap: 20px;
   }
 }
+
+/* ==========================================================
+   Theme Toggle
+   ========================================================== */
+
+.theme-toggle {
+  background: var(--paper);
+  border: 1.5px solid var(--line);
+  color: var(--ink);
+  padding: 8px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+

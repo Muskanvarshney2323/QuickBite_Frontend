@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import Brand from "../components/Brand";
+import { roleHome } from "../components/AppLayout";
 import { useAuthStore } from "../store/auth";
 import { useToast } from "../store/toast";
 
@@ -24,6 +25,7 @@ export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
   const [password, setPassword] = useState("");
 
   const register = useAuthStore((state) => state.register);
@@ -34,20 +36,55 @@ export default function Register() {
   const submit = async (e) => {
     e.preventDefault();
 
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !address) {
       toast("Fill in all required fields", "error");
       return;
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      toast("Please enter a valid email address", "error");
+      return;
+    }
+
+    const cleanPhone = phone.replace(/[^\d+]/g, "");
+    if (!cleanPhone || cleanPhone.replace(/\D/g, "").length < 10) {
+      toast("Please enter a valid phone number", "error");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast("Password must be at least 6 characters", "error");
+      return;
+    }
+
     try {
-      await register({ name, email, phone, password, role });
+      const selectedRole = role;
+
+      const payload = {
+        name: name.trim(),
+        fullName: name.trim(),
+        email: email.trim().toLowerCase(),
+        phone: cleanPhone,
+        address: address.trim(),
+        password,
+        role: selectedRole,
+      };
+
+      console.log("[REGISTER] Selected role:", selectedRole);
+      console.log("[REGISTER] Sending payload:", payload);
+
+      const result = await register(payload);
+
+      console.log("[REGISTER] Backend response:", result);
 
       toast("Registration successful. Please login now.", "success");
-      navigate("/login");
-    } 
-    catch (error) {
-      console.log("Registration error:", error);
-      toast(error.message || "Registration failed", "error");
+
+      // Login page will redirect based on role after login
+      navigate(`/login?from=${roleHome(selectedRole)}`);
+    } catch (error) {
+      console.error("[REGISTER] Error:", error);
+      toast(error.message || error.data?.message || "Registration failed", "error");
     }
   };
 
@@ -58,7 +95,11 @@ export default function Register() {
           <Brand />
 
           <h1 style={{ marginTop: 40 }}>
-            Join <span className="italic" style={{ color: "var(--ember)" }}>QuickBite</span>.
+            Join{" "}
+            <span className="italic" style={{ color: "var(--ember)" }}>
+              QuickBite
+            </span>
+            .
           </h1>
 
           <p className="auth-sub">Pick how you want to show up.</p>
@@ -108,6 +149,15 @@ export default function Register() {
             </div>
 
             <div className="field">
+              <label>Address</label>
+              <input
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Street, city, state"
+              />
+            </div>
+
+            <div className="field">
               <label>Password</label>
               <input
                 type="password"
@@ -134,7 +184,9 @@ export default function Register() {
         <div className="auth-testimonial">
           <span className="eyebrow">Why join</span>
           <blockquote>
-            "QuickBite connects customers, restaurants, and delivery agents in one simple platform."
+            {role === "DeliveryPartner"
+              ? "Start delivering with clear order details: who ordered, where to pick up, and where to drop off."
+              : "QuickBite connects customers, restaurants, and delivery agents in one simple platform."}
           </blockquote>
           <cite>— QuickBite platform</cite>
         </div>

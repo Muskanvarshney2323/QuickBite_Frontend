@@ -7,17 +7,26 @@ export default function Restaurants() {
   const [query, setQuery] = useState('');
   const [cuisine, setCuisine] = useState('All');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const loadRestaurants = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const data = await API.listRestaurants();
+      if (data && data.length > 0) {
+        setRestaurants(data);
+      } else {
+        setError('No restaurants found. Please check your backend.');
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to load restaurants');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadRestaurants = async () => {
-      try {
-        setLoading(true);
-        setRestaurants(await API.listRestaurants());
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadRestaurants();
   }, []);
 
@@ -48,6 +57,7 @@ export default function Restaurants() {
         <div className="hero-strip-inner">
           <span className="eyebrow">{greeting}</span>
           <h1>What are you <span className="italic">hungry</span> for?</h1>
+          <p style={{ fontSize: '0.9rem', color: '#888', marginTop: '4px' }}>{restaurants.length} restaurants available</p>
           <div className="search-bar">
             <input
               type="text"
@@ -55,7 +65,6 @@ export default function Restaurants() {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search restaurants or cuisines…"
             />
-            <button className="btn btn-primary btn-sm">Search</button>
           </div>
         </div>
       </div>
@@ -74,6 +83,13 @@ export default function Restaurants() {
 
       {loading ? (
         <p className="muted">Loading kitchens…</p>
+      ) : error ? (
+        <div className="empty-state">
+          <div className="empty-state-emoji">⚠️</div>
+          <h3>Error loading restaurants</h3>
+          <p>{error}</p>
+          <button className="btn btn-primary" onClick={loadRestaurants}>Try again</button>
+        </div>
       ) : filtered.length === 0 ? (
         <div className="empty-state">
           <div className="empty-state-emoji">🍽️</div>
@@ -84,8 +100,7 @@ export default function Restaurants() {
         <div className="restaurant-grid">
           {filtered.map((r) => (
             <Link key={r.id} to={`/restaurants/${r.id}`} className="restaurant-tile">
-              <div className="tile-image">
-                {r.emoji}
+              <div className="tile-image" style={{ backgroundImage: `url(${r.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', height: '150px', borderRadius: '8px 8px 0 0', display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end' }}>
                 {r.tag && <span className="tile-badge">{r.tag}</span>}
               </div>
               <div className="tile-body">

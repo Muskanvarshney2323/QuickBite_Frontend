@@ -1,19 +1,14 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import Brand from "../components/Brand";
+import { roleHome } from "../components/AppLayout";
 import { useAuthStore } from "../store/auth";
 import { useToast } from "../store/toast";
-
-function roleHome(role) {
-  if (role === "Admin") return "/admin/dashboard";
-  if (role === "RestaurantOwner") return "/restaurant/dashboard";
-  if (role === "DeliveryPartner") return "/agent/dashboard";
-  return "/restaurants";
-}
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [params] = useSearchParams();
 
   const login = useAuthStore((state) => state.login);
   const loading = useAuthStore((state) => state.loading);
@@ -31,9 +26,19 @@ export default function Login() {
     try {
       const response = await login({ email, password });
 
-      toast(`Welcome back, ${response.user.name || "User"}`, "success");
-      navigate(roleHome(response.user.role));
+      console.log("[LOGIN] Full response:", response);
+      console.log("[LOGIN] User role:", response.user?.role);
+
+      toast(`Welcome back, ${response.user?.name || "User"}`, "success");
+
+      const homeUrl = roleHome(response.user?.role);
+      const returnUrl = params.get("from") || homeUrl;
+
+      console.log("[LOGIN] Redirecting to:", returnUrl);
+
+      navigate(returnUrl, { replace: true });
     } catch (error) {
+      console.error("[LOGIN] Error:", error);
       toast(error.message || "Login failed", "error");
     }
   };
@@ -45,7 +50,11 @@ export default function Login() {
           <Brand />
 
           <h1 style={{ marginTop: 40 }}>
-            Welcome <span className="italic" style={{ color: "var(--ember)" }}>back</span>.
+            Welcome{" "}
+            <span className="italic" style={{ color: "var(--ember)" }}>
+              back
+            </span>
+            .
           </h1>
 
           <p className="auth-sub">Sign in to order, track, or manage.</p>

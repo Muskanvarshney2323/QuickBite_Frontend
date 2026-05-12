@@ -18,38 +18,38 @@ import Track from "./pages/Track";
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Landing />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/login" element={<Login />} />
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
 
-      <Route element={<AppLayout roles={["Customer"]} />}>
-        <Route path="/customer" element={<CustomerDashboard />} />
-        <Route path="/restaurants" element={<Restaurants />} />
-        <Route path="/restaurants/:id" element={<Menu />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/orders" element={<Orders />} />
-        <Route path="/track/:id" element={<Track />} />
-        <Route path="/review/:id" element={<Review />} />
-      </Route>
+        <Route element={<AppLayout roles={["Customer"]} />}>
+          <Route path="/customer" element={<CustomerDashboard />} />
+          <Route path="/restaurants" element={<Restaurants />} />
+          <Route path="/restaurants/:id" element={<Menu />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/track/:id" element={<Track />} />
+          <Route path="/review/:id" element={<Review />} />
+        </Route>
 
-      <Route element={<AppLayout roles={["RestaurantOwner"]} />}>
-        <Route path="/restaurant" element={<RestaurantDashboard />} />
-        <Route path="/restaurant/dashboard" element={<RestaurantDashboard />} />
-      </Route>
+        <Route element={<AppLayout roles={["RestaurantOwner"]} />}>
+          <Route path="/restaurant" element={<RestaurantDashboard />} />
+          <Route path="/restaurant/dashboard" element={<RestaurantDashboard />} />
+        </Route>
 
-      <Route element={<AppLayout roles={["DeliveryPartner"]} />}>
-        <Route path="/agent" element={<AgentDashboard />} />
-        <Route path="/agent/dashboard" element={<AgentDashboard />} />
-      </Route>
+        <Route element={<AppLayout roles={["DeliveryPartner"]} />}>
+          <Route path="/agent" element={<AgentDashboard />} />
+          <Route path="/agent/dashboard" element={<AgentDashboard />} />
+        </Route>
 
-      <Route element={<AppLayout roles={["Admin"]} />}>
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-      </Route>
+        <Route element={<AppLayout roles={["Admin"]} />}>
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
-  );
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    );
 }

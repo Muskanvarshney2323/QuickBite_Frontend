@@ -8,26 +8,55 @@ export default function Menu() {
   const { id } = useParams();
   const [data, setData] = useState(null);
   const [activeCat, setActiveCat] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const add = useCart((s) => s.add);
   const toast = useToast((s) => s.push);
 
-  useEffect(() => {
-    const loadMenu = async () => {
-      try {
-        const menuData = await API.getMenu(id);
-        setData(menuData);
-        setActiveCat(menuData.categories[0]?.id);
-      } catch (error) {
-        toast(error.message || 'Failed to load menu', 'error');
-        setData({ restaurant: null, categories: [] });
-      }
-    };
+  const loadMenu = async () => {
+    try {
+      setLoading(true);
+      const restaurant = await API.getRestaurantById(id);
+      let categories = [];
+      let menuData = [];
 
+      try {
+        menuData = await API.getMenuByRestaurant(id);
+        if (!menuData.length) {
+          menuData = await API.getMenuItemsByRestaurant(id, true);
+        }
+
+        categories = menuData.reduce((groups, item) => {
+          const key = item.category || 'Menu Items';
+          const group = groups.find((group) => group.name === key);
+          if (group) {
+            group.items.push(item);
+          } else {
+            groups.push({ id: key.replace(/\s+/g, '-').toLowerCase(), name: key, items: [item] });
+          }
+          return groups;
+        }, []);
+      } catch (menuError) {
+        console.error('Menu loading error:', menuError);
+        toast(menuError.message || 'Failed to load menu items', 'error');
+      }
+
+      setData({ restaurant, categories });
+      setActiveCat(categories[0]?.id);
+    } catch (error) {
+      console.error('Restaurant loading error:', error);
+      toast(error.message || 'Failed to load restaurant', 'error');
+      setData({ restaurant: null, categories: [] });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadMenu();
   }, [id, toast]);
 
-  if (!data) return <div className="page"><p className="muted">Loading menu…</p></div>;
+  if (!data || loading) return <div className="page"><p className="muted">Loading menu…</p></div>;
 
   const { restaurant, categories } = data;
 
@@ -66,6 +95,9 @@ export default function Menu() {
             <span><span className="rating">★ {restaurant.rating}</span></span>
             <span>· {restaurant.eta} min</span>
             <span>· ₹{restaurant.priceFor2} for two</span>
+            <button className="btn btn-sm" onClick={loadMenu} disabled={loading} style={{ marginLeft: '10px' }}>
+              {loading ? 'Loading...' : '🔄 Refresh'}
+            </button>
           </div>
         </div>
       </div>

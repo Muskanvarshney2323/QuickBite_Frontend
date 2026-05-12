@@ -1,20 +1,45 @@
 import { Link } from "react-router-dom";
 import Brand from "../components/Brand";
-import { useAuthStore } from "../store/auth";
 
-function roleHome(role) {
-  if (role === "ADMIN") return "/admin";
-  if (role === "OWNER") return "/restaurant";
-  if (role === "AGENT") return "/agent";
-  return "/customer";
+// Normalize role string to standard role names
+export function normalizeRole(role) {
+  if (!role) return "Customer";
+  const upper = String(role).trim().toUpperCase();
+
+  if (upper === "CUSTOMER" || upper === "USER" || upper === "GUEST") return "Customer";
+  if (upper === "ADMIN" || upper === "ADMINISTRATOR") return "Admin";
+  if (
+    ["OWNER", "RESTAURANT", "RESTAURANTOWNER", "RESTAURANT_OWNER"].some((key) => upper.includes(key))
+  ) {
+    return "RestaurantOwner";
+  }
+  if (
+    ["AGENT", "DELIVERYPARTNER", "DELIVERY_PARTNER", "DELIVERY", "DELIVERY_AGENT", "DELIVERY AGENT", "DELIVERY PARTNER"].some((key) => upper.includes(key))
+  ) {
+    return "DeliveryPartner";
+  }
+
+  return "Customer";
+}
+
+// Get home page URL based on user role
+export function roleHome(role) {
+  const normalized = normalizeRole(role);
+  switch (normalized) {
+    case "Admin":
+      return "/admin/dashboard";
+    case "RestaurantOwner":
+      return "/restaurant/dashboard";
+    case "DeliveryPartner":
+      return "/agent/dashboard";
+    case "Customer":
+    default:
+      return "/restaurants";
+  }
 }
 
 export default function Landing() {
-  const user = useAuthStore((state) => state.user);
-
-  const primary = user
-    ? { to: roleHome(user.role), label: `Continue as ${user.name || "User"}` }
-    : { to: "/register", label: "Get started — it's free" };
+  const primary = { to: "/register", label: "Get started — it's free" };
 
   return (
     <>
@@ -24,24 +49,16 @@ export default function Landing() {
         <div className="landing-nav-links">
           <a href="#features">Features</a>
           <a href="#how">How it works</a>
-          <Link to="/customer">Browse</Link>
+          <Link to="/restaurants">Browse</Link>
         </div>
 
         <div className="nav-cta">
-          {!user ? (
-            <>
-              <Link to="/login" className="btn btn-outline btn-sm">
-                Log in
-              </Link>
-              <Link to="/register" className="btn btn-ink btn-sm">
-                Sign up
-              </Link>
-            </>
-          ) : (
-            <Link to={roleHome(user.role)} className="btn btn-ink btn-sm">
-              Dashboard
-            </Link>
-          )}
+          <Link to="/login" className="btn btn-outline btn-sm">
+            Log in
+          </Link>
+          <Link to="/register" className="btn btn-ink btn-sm">
+            Sign up
+          </Link>
         </div>
       </nav>
 
@@ -63,7 +80,7 @@ export default function Landing() {
               {primary.label}
             </Link>
 
-            <Link to="/customer" className="btn btn-ghost">
+            <Link to="/restaurants" className="btn btn-ghost">
               Browse restaurants →
             </Link>
           </div>

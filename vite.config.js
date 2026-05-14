@@ -3,25 +3,27 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  server: { 
-    port: 5173, 
+
+  server: {
+    port: 5173,
     open: true,
+
     proxy: {
       '/api': {
         target: 'http://localhost:5000',
         changeOrigin: true,
-      },
-      '/Auth': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
+        secure: false,
       },
     },
   },
+
   test: {
     globals: true,
     environment: 'jsdom',
     setupFiles: 'src/setupTests.js',
+
     include: ['src/**/*.{test,spec}.{js,jsx,ts,tsx}'],
+
     coverage: {
       provider: 'istanbul',
       reporter: ['text', 'lcov'],

@@ -798,8 +798,6 @@ export default function RestaurantDashboard() {
                   Publish your kitchen so customers can discover it immediately.
                 </p>
               </div>
-
-              <span className="rdb-badge">Backend connected form</span>
             </div>
 
             <form onSubmit={handleCreateRestaurant} className="rdb-form-grid">

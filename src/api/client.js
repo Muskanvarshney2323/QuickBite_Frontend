@@ -263,6 +263,12 @@ function normalizeRestaurant(item) {
     phone: r.phone || "",
     rating: r.avgRating || r.rating || "New",
     eta,
+    priceFor2:
+      r.priceFor2 ||
+      r.costForTwo ||
+      r.averageCost ||
+      r.avgCost ||
+      300,
     estimatedDeliveryTimeInMinutes: eta,
     minimumOrderAmount,
     emoji: r.emoji || cuisineEmoji(r.cuisine),
